@@ -10,10 +10,10 @@ def exit_handler():
     except:
         print("error closing DECtalk windows")
 
-print("DECtalk Player v1.1 || 26 Jul 2023\n")
+print("DECtalk Player v1.11 || 26 Jul 2023\n")
 
 details = True
-debug = True
+debug = False
 
 #choose config file name
 conf_name = "index.cfg"
@@ -32,7 +32,7 @@ try:
         for i in range(len(config) - 1):
             command_list.append([config[i+1][0:8].strip(), config[i+1][9:].strip()])
         if details:
-            print("file names and dependancies:")
+            print("file names and dependencies:")
             i = 0
             for i_fake in range(len(command_list)):
                 if debug:
