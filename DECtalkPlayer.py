@@ -25,9 +25,11 @@ if details:
     print("DECtalk Player v1.0.0 || 26 Jul 2023\n")
 
 #choose config file name
-conf_name = "index.cfg"
+conf_name = ""
 if len(sys.argv) >= 2:
     conf_name = sys.argv[1]
+else:
+    conf_name = input("Path to config file : ")
 if details:
     print("loading from file \"" + conf_name + "\"...")
 
@@ -58,7 +60,7 @@ try:
     command_list = []
     try:
         for i in range(len(config) - startingLine):
-            command_list.append([config[i+startingLine][0:8].strip(), (relpath + config[i+startingLine][9:].strip())])
+            command_list.append([config[i+startingLine][0:8].strip(), (relpath + config[i+startingLine][9:].strip()).replace("\\","/")])
         if details:
             print("file names and dependencies:")
         i = 0
