@@ -16,7 +16,7 @@ def exit_handler():
             print("error closing DECtalk windows")
 
 if details:
-    print("DECtalk Player v1.2 || 26 Jul 2023\n")
+    print("DECtalk Player v1.21 || 26 Jul 2023\n")
 
 #choose config file name
 conf_name = "index.cfg"
@@ -35,10 +35,24 @@ try:
     config = conf.readlines()
     conf.close()
     length = (float(config[0]))
+    
+    #find where the files start
+    startingLine = 0
+    for i in range(len(config)):
+        if config[i].strip() == "!FILES!":
+            break
+        else:
+            startingLine += 1
+    startingLine += 1
+    if startingLine >= len(config):
+        startingLine = 1
+    if debug and details:
+        print(startingLine)
+    
     command_list = []
     try:
-        for i in range(len(config) - 1):
-            command_list.append([config[i+1][0:8].strip(), (relpath + config[i+1][9:].strip())])
+        for i in range(len(config) - startingLine):
+            command_list.append([config[i+startingLine][0:8].strip(), (relpath + config[i+startingLine][9:].strip())])
         if details:
             print("file names and dependencies:")
         i = 0
