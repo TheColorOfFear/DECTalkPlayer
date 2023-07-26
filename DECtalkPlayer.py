@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess
 import time
 import atexit
@@ -15,7 +16,7 @@ def exit_handler():
             print("error closing DECtalk windows")
 
 if details:
-    print("DECtalk Player v1.11 || 26 Jul 2023\n")
+    print("DECtalk Player v1.2 || 26 Jul 2023\n")
 
 #choose config file name
 conf_name = "index.cfg"
@@ -26,13 +27,18 @@ if details:
 
 try:
     conf = open(conf_name, "r")
+    relpath =  os.path.dirname(conf.name)
+    if relpath != "":
+        relpath += "/"
+    if debug and details:
+        print("file \"" + conf.name + "\" is in the relative directory \"" + relpath + "\"")
     config = conf.readlines()
     conf.close()
     length = (float(config[0]))
     command_list = []
     try:
         for i in range(len(config) - 1):
-            command_list.append([config[i+1][0:8].strip(), config[i+1][9:].strip()])
+            command_list.append([config[i+1][0:8].strip(), (relpath + config[i+1][9:].strip())])
         if details:
             print("file names and dependencies:")
         i = 0
