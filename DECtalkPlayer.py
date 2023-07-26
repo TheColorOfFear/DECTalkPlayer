@@ -22,7 +22,7 @@ def exit_handler():
             print("error closing DECtalk windows")
 
 if details:
-    print("DECtalk Player v1.20 || 26 Jul 2023\n")
+    print("DECtalk Player v1.0.0 || 26 Jul 2023\n")
 
 #choose config file name
 conf_name = "index.cfg"
