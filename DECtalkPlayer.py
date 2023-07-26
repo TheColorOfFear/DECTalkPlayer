@@ -4,7 +4,11 @@ import subprocess
 import time
 import atexit
 
+show_metadata = True
 details = True
+details_error = True
+if details:
+    details_error = True
 debug = False
 
 def exit_handler():
@@ -12,11 +16,13 @@ def exit_handler():
         for i in range(len(process_list)):
             process_list[i].kill()
     except:
-        if details:
+        if debug:
+            raise
+        if details_error:
             print("error closing DECtalk windows")
 
 if details:
-    print("DECtalk Player v1.21 || 26 Jul 2023\n")
+    print("DECtalk Player v1.20 || 26 Jul 2023\n")
 
 #choose config file name
 conf_name = "index.cfg"
@@ -30,7 +36,7 @@ try:
     relpath =  os.path.dirname(conf.name)
     if relpath != "":
         relpath += "/"
-    if debug and details:
+    if debug and (details):
         print("file \"" + conf.name + "\" is in the relative directory \"" + relpath + "\"")
     config = conf.readlines()
     conf.close()
@@ -46,7 +52,7 @@ try:
     startingLine += 1
     if startingLine >= len(config):
         startingLine = 1
-    if debug and details:
+    if debug and (details):
         print(startingLine)
     
     command_list = []
@@ -67,7 +73,7 @@ try:
                     path_check.close()
                     i += 1
                 except:
-                    if details:
+                    if details_error:
                         print("file \"" + command_list[i][1] + "\" not found")
                     command_list.pop(i)
         try:
@@ -78,8 +84,19 @@ try:
                 try:
                     process_list.append(subprocess.Popen(command_list[i], start_new_session=True, shell=False))
                 except:
-                    if details:
+                    if debug:
+                        raise
+                    if details_error:
                         print(command_list[i][1] + " - couldn't open \"" + command_list[i][0] + "\" window")
+            
+            if (startingLine != 1) and show_metadata:
+                print("")
+                for i in range(len(config)):
+                    if config[i+1].strip() == "!FILES!":
+                        break
+                    else:
+                        print(config[i+1].strip())
+            
             time.sleep(length)
         except:
             if debug:
@@ -90,7 +107,7 @@ try:
 except:
     if debug:
         raise
-    if details:
+    if details_error:
         print("couldn't load \"" + conf_name + "\"")
 if details:
     print("\nexiting program...")
