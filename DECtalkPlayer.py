@@ -11,7 +11,7 @@ details = True
 details_error = True
 if details:
     details_error = True
-debug = False
+debug = True
 
 def exit_handler():
     try:
@@ -22,6 +22,26 @@ def exit_handler():
             raise
         if details_error:
             print("error closing DECtalk windows")
+
+def read_metadata():
+    print("")
+    if version == 0.0:
+        for i in range(len(config)):
+            if config[i].strip() == "!FILES!":
+                break
+            else:
+                print(config[i].strip())
+    else:
+        metadata_temp = 0
+        for i in range(len(config)):
+            if config[i+1].strip() == "!FILES!":
+                break
+            elif metadata_temp == 1:
+                print(config[i+1].strip())
+            elif config[i+1].strip() == "!META!":
+                metadata_temp = 1
+
+
 
 if details:
     print("DECtalk Player PR v1.1.0 || 06 Aug 2023\n")
@@ -53,8 +73,11 @@ try:
             if details_error:
                 print("CFG version newer than supported. It may not work with your version of DtP")
     except:
+        version = 0.0
         if details_error:
             print("ERROR : No version for CFG file. It may not work with your version of DtP.")
+    if debug:
+        print("cfg version", version, "\nmax cfg version", CFG_ver)
     
     #find where the files start
     startingLine = 0
@@ -71,25 +94,26 @@ try:
     
     command_list = []
     try:
-        for i in range(len(config) - startingLine):
-            command_list.append([config[i+startingLine][0:8].strip(), (relpath + config[i+startingLine][9:].strip()).replace("\\","/")])
-        if details:
-            print("file names and dependencies:")
-        i = 0
-        for i_fake in range(len(command_list)):
-            if debug and details:
-                print(i_fake, i, len(command_list))
-            if i < len(command_list):
-                if details:
-                    print(command_list[i][1] + " - " + command_list[i][0])
-                try:
-                    path_check = open(command_list[i][1], "r")
-                    path_check.close()
-                    i += 1
-                except:
-                    if details_error:
-                        print("file \"" + command_list[i][1] + "\" not found")
-                    command_list.pop(i)
+        if version == 0.0:
+            for i in range(len(config) - startingLine):
+                command_list.append([config[i+startingLine][0:8].strip(), (relpath + config[i+startingLine][9:].strip()).replace("\\","/")])
+            if details:
+                print("file names and dependencies:")
+            i = 0
+            for i_fake in range(len(command_list)):
+                if debug and details:
+                    print(i_fake, i, len(command_list))
+                if i < len(command_list):
+                    if details:
+                        print(command_list[i][1] + " - " + command_list[i][0])
+                    try:
+                        path_check = open(command_list[i][1], "r")
+                        path_check.close()
+                        i += 1
+                    except:
+                        if details_error:
+                            print("file \"" + command_list[i][1] + "\" not found")
+                        command_list.pop(i)
         try:
             #run/stop speak_us.exe with all the files
             process_list = []
@@ -104,13 +128,7 @@ try:
                         print(command_list[i][1] + " - couldn't open \"" + command_list[i][0] + "\" window")
             
             if (startingLine != 1) and show_metadata:
-                print("")
-                for i in range(len(config)):
-                    if config[i+1].strip() == "!FILES!":
-                        break
-                    else:
-                        print(config[i+1].strip())
-            
+                read_metadata()
             time.sleep(length)
         except:
             if debug:
