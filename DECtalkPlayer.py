@@ -11,7 +11,10 @@ details = True
 details_error = True
 if details:
     details_error = True
-debug = True
+debug = False
+
+if details:
+    print("DECtalk Player v1.1.0 || 06 Aug 2023\n")
 
 def exit_handler():
     try:
@@ -41,10 +44,61 @@ def read_metadata():
             elif config[i+1].strip() == "!META!":
                 metadata_temp = 1
 
-
-
-if details:
-    print("DECtalk Player PR v1.1.0 || 06 Aug 2023\n")
+def create_command_list():
+    if version == 0.0:
+        for i in range(len(config) - startingLine):
+            command_list.append(["SPE", config[i+startingLine][0:8].strip(), "FILE", (relpath + config[i+startingLine][9:].strip()).replace("\\","/")])
+        if details:
+            print("file names and dependencies:")
+        i = 0
+        for i_fake in range(len(command_list)):
+            if debug and details:
+                print(i_fake, i, len(command_list))
+            if i < len(command_list):
+                if details:
+                    print(command_list[i][3] + " - " + command_list[i][1])
+                try:
+                    path_check = open(command_list[i][3], "r")
+                    path_check.close()
+                    i += 1
+                except:
+                    if details_error:
+                        print("file \"" + command_list[i][3] + "\" not found")
+                    command_list.pop(i)
+    else:
+        for i in range(len(config) - startingLine):
+            CCL_temp_list = []
+            CCL_temp_list.append(config[i+startingLine][0:3].strip())
+            CCL_temp_divider = config[i+startingLine].find("|")
+            CCL_temp_list.append(config[i+startingLine][4:CCL_temp_divider].strip())
+            CCL_temp_list.append(config[i+startingLine][CCL_temp_divider + 1:CCL_temp_divider + 5].strip())
+            CCL_temp_list.append(config[i+startingLine][CCL_temp_divider + 6:].strip())
+            command_list.append(CCL_temp_list)
+            if debug:
+                print(CCL_temp_list)
+        if details:
+            print("file names and dependencies:")
+        i = 0
+        for i_fake in range(len(command_list)):
+            if debug and details:
+                print(i_fake, i, len(command_list))
+            if i < len(command_list):
+                if command_list[i][2] == "FILE":
+                    if details:
+                        print(command_list[i][3] + " - " + command_list[i][0])
+                    try:
+                        path_check = open(command_list[i][3], "r")
+                        command_list[i][3] = path_check.read()
+                        path_check.close()
+                        i += 1
+                    except:
+                        if details_error:
+                            print("file \"" + command_list[i][3] + "\" not found")
+                        command_list.pop(i)
+                else:
+                    if details:
+                        print("Text In CFG" + " - " + command_list[i][1])
+                    i += 1
 
 #choose config file name
 conf_name = ""
@@ -94,38 +148,22 @@ try:
     
     command_list = []
     try:
-        if version == 0.0:
-            for i in range(len(config) - startingLine):
-                command_list.append([config[i+startingLine][0:8].strip(), (relpath + config[i+startingLine][9:].strip()).replace("\\","/")])
-            if details:
-                print("file names and dependencies:")
-            i = 0
-            for i_fake in range(len(command_list)):
-                if debug and details:
-                    print(i_fake, i, len(command_list))
-                if i < len(command_list):
-                    if details:
-                        print(command_list[i][1] + " - " + command_list[i][0])
-                    try:
-                        path_check = open(command_list[i][1], "r")
-                        path_check.close()
-                        i += 1
-                    except:
-                        if details_error:
-                            print("file \"" + command_list[i][1] + "\" not found")
-                        command_list.pop(i)
+        create_command_list()
         try:
             #run/stop speak_us.exe with all the files
             process_list = []
             atexit.register(exit_handler)
             for i in range(len(command_list)):
                 try:
-                    process_list.append(subprocess.Popen(command_list[i], start_new_session=True, shell=False))
+                    if command_list[i][0] == "SPE":
+                        process_list.append(subprocess.Popen([command_list[i][1],command_list[i][3]], start_new_session=True, shell=False))
+                    elif command_list[i][0] == "SAY":
+                        process_list.append(subprocess.Popen([command_list[i][1],command_list[i][3]], start_new_session=True, shell=False))
                 except:
                     if debug:
                         raise
                     if details_error:
-                        print(command_list[i][1] + " - couldn't open \"" + command_list[i][0] + "\" window")
+                        print(command_list[i][3] + " - couldn't open \"" + command_list[i][1] + "\" window")
             
             if (startingLine != 1) and show_metadata:
                 read_metadata()
