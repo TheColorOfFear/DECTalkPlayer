@@ -4,6 +4,8 @@ import subprocess
 import time
 import atexit
 
+#configuration#
+CFG_ver = 1.0
 show_metadata = True
 details = True
 details_error = True
@@ -22,7 +24,7 @@ def exit_handler():
             print("error closing DECtalk windows")
 
 if details:
-    print("DECtalk Player v1.0.0 || 26 Jul 2023\n")
+    print("DECtalk Player PR v1.1.0 || 06 Aug 2023\n")
 
 #choose config file name
 conf_name = ""
@@ -43,6 +45,16 @@ try:
     config = conf.readlines()
     conf.close()
     length = (float(config[0]))
+    
+    try:
+        version = (float(config[1]))
+        #if cfg version is newer than the CFG_ver, alert user.
+        if version > CFG_ver:
+            if details_error:
+                print("CFG version newer than supported. It may not work with your version of DtP")
+    except:
+        if details_error:
+            print("ERROR : No version for CFG file. It may not work with your version of DtP.")
     
     #find where the files start
     startingLine = 0
